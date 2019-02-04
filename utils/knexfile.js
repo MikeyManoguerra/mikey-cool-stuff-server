@@ -3,7 +3,7 @@
 module.exports = {
   development: {
     client: 'pg',
-    connection: process.env.DATABASE_URL || 'postgres://localhost/object',
+    connection: process.env.DATABASE_URL || 'postgres://localhost/object-tracking-app',
     debug: true, // http://knexjs.org/#Installation-debug
     pool: { min: 1, max: 2 }
   },

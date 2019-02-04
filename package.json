@@ -4,7 +4,8 @@
   "description": "Cool Stuff server side",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1"	,
+    "start": "node server.js"
   },
   "author": "",
   "license": "ISC",
@@ -12,5 +13,8 @@
     "express": "^4.16.4",
     "knex": "^0.16.3",
     "pg": "^7.8.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.9"
   }
 }
