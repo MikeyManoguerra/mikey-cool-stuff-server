@@ -2,8 +2,9 @@
 const express = require('express');
 const router = express.Router();
 const knex = require('../../utils/knex');
-const postAnOrgin = require('./origins');
-
+const addOriginToDb = require('./db-utils/origins');
+const addManufacturerToDb = require('./db-utils/manufacturers');
+const addLocationToDb = require('./db-utils/locations');
 
 router.get('/', (req, res, next) => {
   knex
@@ -44,8 +45,6 @@ router.post('/', (req, res, next) => {
     manufacturer,
     global,
     postalCode,
-
-
   } = req.body;
   // need to figure out what data i am collecting from images!
   //and categories
@@ -53,29 +52,59 @@ router.post('/', (req, res, next) => {
   const newObject = {
     name,
     description,
+  }
+
+  const dbDataObject = {
     country: countryOfOrigin,
     postal_code: postalCode,
-    manufacturer: manufacturer,
+    corp: manufacturer,
     global,
   };
-console.log(newObject);
+
   if (!newObject.name) {
     const err = new Error(' please provide a name for your object posting');
     err.status = 400;
     next(err);
   }
 
-  if (!newObject.postal_code) {
+  if (!dbDataObject.postal_code) {
     const err = new Error(' please provide a zipcode location, so we can map your object!');
     err.status = 400;
     next(err);
   }
 
-  postAnOrgin(newObject);
-
 
   //third validation checking to make sure if 
   //people want to leave other parts of the form blank
+
+
+
+  const originData = addOriginToDb(dbDataObject);
+  const manufacturerData = addManufacturerToDb(dbDataObject);
+  const locationData = addLocationToDb(dbDataObject);
+
+  Promise.all([
+    originData,
+    manufacturerData,
+    locationData
+  ])
+    .then(([origin, manufacturer, location]) => {
+      newObject.origin_id = origin.id;
+      newObject.manufacturer_id = manufacturer.id;
+      newObject.location_id = location.id;
+    })
+    .then(() => knex('objects')
+      .insert(newObject, ['name', 'objects.id']))
+    .then(([result]) => {
+      if (result) {
+        res.location(`http://${req.headers.host}/folders/${result.id}`).status(201).json(result);
+      } else {
+        next();
+      }
+    })
+    .catch(err => next(err));
+
+
 });
 
 
