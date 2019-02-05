@@ -7,7 +7,7 @@ const addOriginToDb = (obj) => {
     country,
     global
   };
-  // need to get the location LAT LON data here
+
   return knex('origins')
     .insert(newOrigin,['origins.id', 'country'])
     .then(([results]) => {

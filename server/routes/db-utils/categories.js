@@ -3,22 +3,26 @@
 const knex = require('../../../utils/knex');
 
 
+const  dbActionUsingKnex = (arr) => {
+  const idArray = arr.map(category => {
+    return knex('categories')
+      .insert(category)
+      .returning('categories.id') 
+      .then(([id]) => id) ;
+  });
+  return idArray;
+};
 
-const addCategoryToDb = (obj) => {
-  const { country, global } = obj;
-  const newOrigin = {
-    country,
-    global
-  };
-  // need to get the location LAT LON data here
-  return knex('origins')
-    .insert(newOrigin,['origins.id', 'country'])
-    .then(([results]) => {
-      if(results){
-        return results;
-      }
-    });
+const addCategoriesToDb = (obj) => {
+  const { categories } = obj;
+  const knexArray = categories.map(category => {
+    return { name: category };
+  });
+  return Promise.all(
+    dbActionUsingKnex(knexArray)
+  ).then(results =>{ 
+    return results;
+  });
 
 };
-  
-module.exports = addOriginToDb;
+module.exports = addCategoriesToDb;

@@ -5,6 +5,9 @@ const knex = require('../../utils/knex');
 const addOriginToDb = require('./db-utils/origins');
 const addManufacturerToDb = require('./db-utils/manufacturers');
 const addLocationToDb = require('./db-utils/locations');
+const addCategoriesToDb = require('./db-utils/categories');
+const uploadImageToCloudinary = require('./db-utils/cloud-image-store');
+const addImageUrlToDb = require('./db-utils/images');
 
 router.get('/', (req, res, next) => {
   knex
@@ -32,11 +35,6 @@ router.get('/', (req, res, next) => {
     .catch(err => next(err));
 });
 
-
-router.get('/:id', (req, res, next) => {
-
-});
-
 router.post('/', (req, res, next) => {
   const {
     name,
@@ -45,6 +43,8 @@ router.post('/', (req, res, next) => {
     manufacturer,
     global,
     postalCode,
+    categories,
+    // images
   } = req.body;
   // need to figure out what data i am collecting from images!
   //and categories
@@ -52,14 +52,18 @@ router.post('/', (req, res, next) => {
   const newObject = {
     name,
     description,
-  }
+  };
 
   const dbDataObject = {
     country: countryOfOrigin,
     postal_code: postalCode,
     corp: manufacturer,
     global,
+    categories,
+
   };
+
+  // const imageArray = [...images];
 
   if (!newObject.name) {
     const err = new Error(' please provide a name for your object posting');
@@ -73,34 +77,49 @@ router.post('/', (req, res, next) => {
     next(err);
   }
 
-
   //third validation checking to make sure if 
   //people want to leave other parts of the form blank
 
+  // const imageUrlintheCloud =  uploadImageToCloudinary();
+  // const imagesDataDb = addImageUrlToDb();
 
+  // if(imageArray.length > 0){
+  //   return imageUrlintheCloud(imageArray)
+  //     .then(urlResults => imagesDataDb(urlResults));
+  // } else imagesDataDb();
 
   const originData = addOriginToDb(dbDataObject);
   const manufacturerData = addManufacturerToDb(dbDataObject);
   const locationData = addLocationToDb(dbDataObject);
 
+  const categoriesData = addCategoriesToDb(dbDataObject);
+
+  let objectId;
+
   Promise.all([
     originData,
     manufacturerData,
-    locationData
+    locationData,
+    // imagesDataDb,
+    categoriesData
   ])
-    .then(([origin, manufacturer, location]) => {
+
+    .then(([origin, manufacturer, location,]) => {
       newObject.origin_id = origin.id;
       newObject.manufacturer_id = manufacturer.id;
       newObject.location_id = location.id;
     })
     .then(() => knex('objects')
-      .insert(newObject, ['name', 'objects.id']))
-    .then(([result]) => {
-      if (result) {
-        res.location(`http://${req.headers.host}/folders/${result.id}`).status(201).json(result);
-      } else {
-        next();
-      }
+      .insert(newObject)
+      .returning('id'))
+    .then(([id]) => {
+      objectId = id;
+      const categoriesInsert = categoriesData.map(
+        categoryId => ({
+          object_id: objectId,
+          category_id: categoryId
+        }));
+      return knex.insert(categoriesInsert).into('objects_categories')
     })
     .catch(err => next(err));
 
