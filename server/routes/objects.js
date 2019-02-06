@@ -95,35 +95,40 @@ router.post('/', (req, res, next) => {
   const categoriesData = addCategoriesToDb(dbDataObject);
 
   let objectId;
+  let categoryIdArray = [];
+
 
   Promise.all([
     originData,
     manufacturerData,
     locationData,
-    // imagesDataDb,
     categoriesData
   ])
-
-    .then(([origin, manufacturer, location,]) => {
+    .then(([origin, manufacturer, location, categoriesData]) => {
       newObject.origin_id = origin.id;
       newObject.manufacturer_id = manufacturer.id;
       newObject.location_id = location.id;
+      categoryIdArray =[...categoriesData];
     })
     .then(() => knex('objects')
       .insert(newObject)
       .returning('id'))
     .then(([id]) => {
       objectId = id;
-      const categoriesInsert = categoriesData.map(
-        categoryId => ({
-          object_id: objectId,
-          category_id: categoryId
-        }));
+      const categoriesInsert = categoryIdArray.map(
+        categoryId => {
+          console.log(categoryId);
+          return {
+            object_id: objectId,
+            category_id: categoryId
+          };
+        });
       return knex.insert(categoriesInsert).into('objects_categories')
+        .then(()=>
+          res.status(204).end()
+        );
     })
     .catch(err => next(err));
-
-
 });
 
 

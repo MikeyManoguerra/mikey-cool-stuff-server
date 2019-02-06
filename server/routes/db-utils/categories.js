@@ -3,12 +3,12 @@
 const knex = require('../../../utils/knex');
 
 
-const  dbActionUsingKnex = (arr) => {
+const dbActionUsingKnex = (arr) => {
   const idArray = arr.map(category => {
     return knex('categories')
       .insert(category)
-      .returning('categories.id') 
-      .then(([id]) => id) ;
+      .returning('categories.id')
+      .then(([id]) => id);
   });
   return idArray;
 };
@@ -20,7 +20,7 @@ const addCategoriesToDb = (obj) => {
   });
   return Promise.all(
     dbActionUsingKnex(knexArray)
-  ).then(results =>{ 
+  ).then(results => {
     return results;
   });
 
