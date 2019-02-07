@@ -8,10 +8,13 @@ cloudinary.config({
   api_secret: API_SECRET
 });
 
-const uploadImageToCloudinary = (image) => {
-  cloudinary.v2.uploader.upload(image, (error, result) => {
-    console.log(result, error);
-  });
+const uploadImageToCloudinary = (obj) => {
+  const { file } = obj;
+  console.log(file, 'this is what i am sending to cloudinary')
+  // cloudinary.v2.uploader.upload(image, (error, result) => {
+    // console.log(result, error);
+  // });
+
 };
 
 module.exports = uploadImageToCloudinary;

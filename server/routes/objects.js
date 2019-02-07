@@ -44,10 +44,11 @@ router.post('/', (req, res, next) => {
     global,
     postalCode,
     categories,
-    // images
+    categoryIds,
+    image
   } = req.body;
-  // need to figure out what data i am collecting from images!
-  //and categories
+
+  
 
   const newObject = {
     name,
@@ -59,8 +60,9 @@ router.post('/', (req, res, next) => {
     postal_code: postalCode,
     corp: manufacturer ? manufacturer : null,
     global,
-    categories: categories ? categories : null
-
+    categories: categories ? categories : null,
+    categoryIds: categoryIds ? categoryIds : null,
+    file: image ? image : null
   };
 
   // const imageArray = [...images];
@@ -76,7 +78,7 @@ router.post('/', (req, res, next) => {
     err.status = 400;
     next(err);
   }
-
+  uploadImageToCloudinary(dbDataObject);
   //third validation checking to make sure if 
   //people want to leave other parts of the form blank
 

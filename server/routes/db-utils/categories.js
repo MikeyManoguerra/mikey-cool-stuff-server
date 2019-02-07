@@ -14,17 +14,22 @@ const dbActionUsingKnex = (arr) => {
 };
 
 const addCategoriesToDb = (obj) => {
-  const { categories } = obj;
-
+  const { categories, categoryIds } = obj;
+  const existingCategories = [...categoryIds];
   if (categories) {
-    const knexArray = categories.map(category => {
+    let categoriesArray = [];
+    categoriesArray.push(categories);
+    const knexArray = categoriesArray.map(category => {
       return { name: category };
     });
     return Promise.all(
       dbActionUsingKnex(knexArray)
     ).then(results => {
-      return results;
+      return [...existingCategories, ...results];
     });
+  } else if (categoryIds) {
+    return [...existingCategories];
   } else return [];
 };
+
 module.exports = addCategoriesToDb;
