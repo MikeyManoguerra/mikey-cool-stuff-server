@@ -15,14 +15,16 @@ const dbActionUsingKnex = (arr) => {
 
 const addCategoriesToDb = (obj) => {
   const { categories } = obj;
-  const knexArray = categories.map(category => {
-    return { name: category };
-  });
-  return Promise.all(
-    dbActionUsingKnex(knexArray)
-  ).then(results => {
-    return results;
-  });
 
+  if (categories) {
+    const knexArray = categories.map(category => {
+      return { name: category };
+    });
+    return Promise.all(
+      dbActionUsingKnex(knexArray)
+    ).then(results => {
+      return results;
+    });
+  } else return [];
 };
 module.exports = addCategoriesToDb;

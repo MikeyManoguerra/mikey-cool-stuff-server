@@ -13,9 +13,11 @@ app.use(cors({
   origin: CLIENT_ORIGIN
 }));
 
+const categoriesRouter = require('./routes/categories');
 const objectsRouter = require('./routes/objects');
 
 app.use('/api/objects', objectsRouter);
+app.use('/api/categories', categoriesRouter);
 
 app.listen( PORT, function () {
   console.info(` Server listening on ${this.address().port}`);

@@ -55,11 +55,11 @@ router.post('/', (req, res, next) => {
   };
 
   const dbDataObject = {
-    country: countryOfOrigin,
+    country: countryOfOrigin ? countryOfOrigin : null,
     postal_code: postalCode,
-    corp: manufacturer,
+    corp: manufacturer ? manufacturer : null,
     global,
-    categories,
+    categories: categories ? categories : null
 
   };
 
@@ -108,26 +108,27 @@ router.post('/', (req, res, next) => {
       newObject.origin_id = origin.id;
       newObject.manufacturer_id = manufacturer.id;
       newObject.location_id = location.id;
-      categoryIdArray =[...categoriesData];
+      categoryIdArray = [...categoriesData];
     })
     .then(() => knex('objects')
       .insert(newObject)
       .returning('id'))
     .then(([id]) => {
-      objectId = id;
-      const categoriesInsert = categoryIdArray.map(
-        categoryId => {
-          console.log(categoryId);
-          return {
-            object_id: objectId,
-            category_id: categoryId
-          };
-        });
-      return knex.insert(categoriesInsert).into('objects_categories')
-        .then(()=>
-          res.status(204).end()
-        );
+      if (categoryIdArray.length > 0) {
+        objectId = id;
+        const categoriesInsert = categoryIdArray.map(
+          categoryId => {
+            return {
+              object_id: objectId,
+              category_id: categoryId
+            };
+          });
+        return knex.insert(categoriesInsert).into('objects_categories')
+      }
     })
+    .then(() =>
+      res.status(204).end()
+    )
     .catch(err => next(err));
 });
 
