@@ -15,7 +15,10 @@ const dbActionUsingKnex = (arr) => {
 
 const addCategoriesToDb = (obj) => {
   const { categories, categoryIds } = obj;
-  const existingCategories = [...categoryIds];
+  let existingCategories = [];
+  if (categoryIds) {
+    existingCategories = [...categoryIds];
+  }
   if (categories) {
     let categoriesArray = [];
     categoriesArray.push(categories);

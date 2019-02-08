@@ -6,7 +6,6 @@ const addOriginToDb = require('./db-utils/origins');
 const addManufacturerToDb = require('./db-utils/manufacturers');
 const addLocationToDb = require('./db-utils/locations');
 const addCategoriesToDb = require('./db-utils/categories');
-const uploadImageToCloudinary = require('./db-utils/cloud-image-store');
 const addImageUrlToDb = require('./db-utils/images');
 
 router.get('/', (req, res, next) => {
@@ -48,8 +47,6 @@ router.post('/', (req, res, next) => {
     image
   } = req.body;
 
-  
-
   const newObject = {
     name,
     description,
@@ -62,10 +59,8 @@ router.post('/', (req, res, next) => {
     global,
     categories: categories ? categories : null,
     categoryIds: categoryIds ? categoryIds : null,
-    file: image ? image : null
+    image: image ? image : null
   };
-
-  // const imageArray = [...images];
 
   if (!newObject.name) {
     const err = new Error(' please provide a name for your object posting');
@@ -78,23 +73,15 @@ router.post('/', (req, res, next) => {
     err.status = 400;
     next(err);
   }
-  uploadImageToCloudinary(dbDataObject);
+
   //third validation checking to make sure if 
   //people want to leave other parts of the form blank
-
-  // const imageUrlintheCloud =  uploadImageToCloudinary();
-  // const imagesDataDb = addImageUrlToDb();
-
-  // if(imageArray.length > 0){
-  //   return imageUrlintheCloud(imageArray)
-  //     .then(urlResults => imagesDataDb(urlResults));
-  // } else imagesDataDb();
 
   const originData = addOriginToDb(dbDataObject);
   const manufacturerData = addManufacturerToDb(dbDataObject);
   const locationData = addLocationToDb(dbDataObject);
-
   const categoriesData = addCategoriesToDb(dbDataObject);
+  const imageData = addImageUrlToDb(dbDataObject);
 
   let objectId;
   let categoryIdArray = [];
@@ -104,17 +91,23 @@ router.post('/', (req, res, next) => {
     originData,
     manufacturerData,
     locationData,
-    categoriesData
+    categoriesData,
+    imageData
   ])
-    .then(([origin, manufacturer, location, categoriesData]) => {
+    .then(([origin, manufacturer, location, categoriesData, imageId]) => {
+
       newObject.origin_id = origin.id;
       newObject.manufacturer_id = manufacturer.id;
       newObject.location_id = location.id;
+      newObject.image_id = imageId,
       categoryIdArray = [...categoriesData];
     })
-    .then(() => knex('objects')
-      .insert(newObject)
-      .returning('id'))
+    .then(() => {
+      console.log(newObject);
+      return knex('objects')
+        .insert(newObject)
+        .returning('id');
+    })
     .then(([id]) => {
       if (categoryIdArray.length > 0) {
         objectId = id;
@@ -125,7 +118,7 @@ router.post('/', (req, res, next) => {
               category_id: categoryId
             };
           });
-        return knex.insert(categoriesInsert).into('objects_categories')
+        return knex.insert(categoriesInsert).into('objects_categories');
       }
     })
     .then(() =>
