@@ -9,6 +9,7 @@ const addCategoriesToDb = require('./db-utils/categories');
 const addImageUrlToDb = require('./db-utils/images');
 
 router.get('/', (req, res, next) => {
+  console.log('hit the endpoint');
   knex
     .select('objects.id', 'name', 'description',
       'image_id as imageId',
@@ -26,6 +27,7 @@ router.get('/', (req, res, next) => {
     .orderBy('objects.id')
     .then(result => {
       if (result) {
+        console.log(result);
         res.json(result);
       } else {
         next();
