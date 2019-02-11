@@ -7,28 +7,32 @@ const addManufacturerToDb = require('./db-utils/manufacturers');
 const addLocationToDb = require('./db-utils/locations');
 const addCategoriesToDb = require('./db-utils/categories');
 const addImageUrlToDb = require('./db-utils/images');
+const hydrateObjects = require('../../utils/hydrateObjects');
+
 
 router.get('/', (req, res, next) => {
-  console.log('hit the endpoint');
   knex
-    .select('objects.id', 'name', 'description',
-      'image_id as imageId',
+    .select('objects.id', 'objects.name as name', 'description',
+      'images.id as imageId',
       'images.image_one as imageOne', 'images.image_two as imageTwo',
-      'images.image_three as imageThree', 'images.image_four as imageFour',
-      'location_id as locationId', 'locations.postal_code as postalCode',
-      'origin_id as originId', 'origins.country as countryOfOrigin',
-      'manufacturer_id as manufacturerId', 'manufacturers.corp as manufacturer')
+      'locations.id as locationId', 'locations.postal_code as postalCode',
+      'origins.id as originId', 'origins.country as countryOfOrigin',
+      'manufacturers.id as manufacturerId', 'manufacturers.corp as manufacturer',
+      'categories.id as categoryId', 'categories.name as categoryName')
     .from('objects')
     .leftJoin('images', 'objects.image_id', 'images.id')
     .leftJoin('locations', 'objects.location_id', 'locations.id')
     .leftJoin('origins', 'objects.origin_id', 'origins.id')
     .leftJoin('manufacturers', 'objects.manufacturer_id', 'manufacturers.id')
-    // .leftJoin('objects_categories', 'objects.id', 'objects_categories.object_id')
-    .orderBy('objects.id')
+    .leftJoin('objects_categories', 'objects.id', 'objects_categories.object_id')
+    .leftJoin('categories', 'objects_categories.category_id', 'categories.id' )
+
+    // .orderBy('objects.id')
     .then(result => {
       if (result) {
-        console.log(result);
-        res.json(result);
+        const hydrated = hydrateObjects(result);
+        console.log(hydrated, 'WHAHAHAHAHAHAHAHA')
+        res.json(hydrated);
       } else {
         next();
       }
@@ -102,7 +106,7 @@ router.post('/', (req, res, next) => {
       newObject.manufacturer_id = manufacturer.id;
       newObject.location_id = location.id;
       newObject.image_id = imageId,
-      categoryIdArray = [...categoriesData];
+        categoryIdArray = [...categoriesData];
     })
     .then(() => {
       console.log(newObject);

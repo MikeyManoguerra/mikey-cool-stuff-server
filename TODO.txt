@@ -1,6 +1,0 @@
-write database code.
-import posgres
-link posgres through config.
-imagine dummy data
-read about image hosting. 
-figure out maps
