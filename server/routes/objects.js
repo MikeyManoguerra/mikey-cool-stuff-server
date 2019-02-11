@@ -25,13 +25,12 @@ router.get('/', (req, res, next) => {
     .leftJoin('origins', 'objects.origin_id', 'origins.id')
     .leftJoin('manufacturers', 'objects.manufacturer_id', 'manufacturers.id')
     .leftJoin('objects_categories', 'objects.id', 'objects_categories.object_id')
-    .leftJoin('categories', 'objects_categories.category_id', 'categories.id' )
+    .leftJoin('categories', 'objects_categories.category_id', 'categories.id')
 
     // .orderBy('objects.id')
     .then(result => {
       if (result) {
         const hydrated = hydrateObjects(result);
-        console.log(hydrated, 'WHAHAHAHAHAHAHAHA')
         res.json(hydrated);
       } else {
         next();
@@ -48,7 +47,7 @@ router.post('/', (req, res, next) => {
     manufacturer,
     global,
     postalCode,
-    categories,
+    newCategory,
     categoryIds,
     image
   } = req.body;
@@ -63,10 +62,11 @@ router.post('/', (req, res, next) => {
     postal_code: postalCode,
     corp: manufacturer ? manufacturer : null,
     global,
-    categories: categories ? categories : null,
+    newCategory: newCategory ? newCategory : null,
     categoryIds: categoryIds ? categoryIds : null,
     image: image ? image : null
   };
+
 
   if (!newObject.name) {
     const err = new Error(' please provide a name for your object posting');
@@ -106,30 +106,49 @@ router.post('/', (req, res, next) => {
       newObject.manufacturer_id = manufacturer.id;
       newObject.location_id = location.id;
       newObject.image_id = imageId,
-        categoryIdArray = [...categoriesData];
+      categoryIdArray = [...categoriesData];
     })
     .then(() => {
-      console.log(newObject);
       return knex('objects')
         .insert(newObject)
         .returning('id');
     })
     .then(([id]) => {
-      if (categoryIdArray.length > 0) {
-        objectId = id;
-        const categoriesInsert = categoryIdArray.map(
-          categoryId => {
-            return {
-              object_id: objectId,
-              category_id: categoryId
-            };
-          });
-        return knex.insert(categoriesInsert).into('objects_categories');
+
+      objectId = id;
+      const categoriesInsert = categoryIdArray.map(
+        categoryId => {
+          return {
+            object_id: objectId,
+            category_id: categoryId
+          };
+        });
+      return knex.insert(categoriesInsert).into('objects_categories');
+
+    }).then(() => {
+      return knex
+        .select('objects.id', 'objects.name as name', 'description',
+          'images.id as imageId',
+          'images.image_one as imageOne', 'images.image_two as imageTwo',
+          'locations.id as locationId', 'locations.postal_code as postalCode',
+          'origins.id as originId', 'origins.country as countryOfOrigin',
+          'manufacturers.id as manufacturerId', 'manufacturers.corp as manufacturer',
+          'categories.id as categoryId', 'categories.name as categoryName')
+        .from('objects')
+        .leftJoin('images', 'objects.image_id', 'images.id')
+        .leftJoin('locations', 'objects.location_id', 'locations.id')
+        .leftJoin('origins', 'objects.origin_id', 'origins.id')
+        .leftJoin('manufacturers', 'objects.manufacturer_id', 'manufacturers.id')
+        .leftJoin('objects_categories', 'objects.id', 'objects_categories.object_id')
+        .leftJoin('categories', 'objects_categories.category_id', 'categories.id')
+        .where('objects.id', objectId);
+    })
+    .then(result => {
+      if (result) {
+        const hydrated = hydrateObjects(result)[0];
+        res.status(201).json(hydrated);
       }
     })
-    .then(() =>
-      res.status(204).end()
-    )
     .catch(err => next(err));
 });
 

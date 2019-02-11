@@ -20,7 +20,6 @@ function hydrateObjects(input) {
     delete lookup[object.id].categoryId;
     delete lookup[object.id].categoryName;
   }
-  console.log(hydrated, 'XxXXXXXXXXXX step');
   return hydrated;
 }
 module.exports = hydrateObjects;

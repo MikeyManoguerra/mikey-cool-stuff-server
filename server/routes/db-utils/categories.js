@@ -14,14 +14,15 @@ const dbActionUsingKnex = (arr) => {
 };
 
 const addCategoriesToDb = (obj) => {
-  const { categories, categoryIds } = obj;
+  const { newCategory, categoryIds } = obj;
   let existingCategories = [];
   if (categoryIds) {
     existingCategories = [...categoryIds];
   }
-  if (categories) {
+  if (newCategory) {
+   
     let categoriesArray = [];
-    categoriesArray.push(categories);
+    categoriesArray.push(newCategory);
     const knexArray = categoriesArray.map(category => {
       return { name: category };
     });
