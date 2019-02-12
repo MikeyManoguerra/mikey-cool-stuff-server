@@ -16,7 +16,7 @@ router.get('/', (req, res, next) => {
       'images.id as imageId',
       'images.image_one as imageOne', 'images.image_two as imageTwo',
       'locations.id as locationId', 'locations.postal_code as postalCode',
-      'origins.id as originId', 'origins.country as countryOfOrigin',
+      'origins.id as originId', 'origins.country as countryOfOrigin', 'origins.capital as capital',
       'manufacturers.id as manufacturerId', 'manufacturers.corp as manufacturer',
       'categories.id as categoryId', 'categories.name as categoryName')
     .from('objects')
@@ -131,7 +131,7 @@ router.post('/', (req, res, next) => {
           'images.id as imageId',
           'images.image_one as imageOne', 'images.image_two as imageTwo',
           'locations.id as locationId', 'locations.postal_code as postalCode',
-          'origins.id as originId', 'origins.country as countryOfOrigin',
+          'origins.id as originId', 'origins.country as countryOfOrigin', 'origins.capital as capital',
           'manufacturers.id as manufacturerId', 'manufacturers.corp as manufacturer',
           'categories.id as categoryId', 'categories.name as categoryName')
         .from('objects')
