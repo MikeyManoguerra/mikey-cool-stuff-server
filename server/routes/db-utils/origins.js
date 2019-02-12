@@ -3,11 +3,12 @@ const knex = require('../../../utils/knex');
 
 const addOriginToDb = (obj) => {
 
-  const { country, global } = obj;
+  const { country, global, capital } = obj;
   if (country) {
     const newOrigin = {
       country,
-      global
+      global, 
+      capital
     };
 
     return knex('origins')

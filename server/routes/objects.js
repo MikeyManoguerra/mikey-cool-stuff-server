@@ -49,7 +49,8 @@ router.post('/', (req, res, next) => {
     postalCode,
     newCategory,
     categoryIds,
-    image
+    image,
+    capital,
   } = req.body;
 
   const newObject = {
@@ -62,6 +63,7 @@ router.post('/', (req, res, next) => {
     postal_code: postalCode,
     corp: manufacturer ? manufacturer : null,
     global,
+    capital: capital ? capital : null,
     newCategory: newCategory ? newCategory : null,
     categoryIds: categoryIds ? categoryIds : null,
     image: image ? image : null
@@ -106,7 +108,7 @@ router.post('/', (req, res, next) => {
       newObject.manufacturer_id = manufacturer.id;
       newObject.location_id = location.id;
       newObject.image_id = imageId,
-      categoryIdArray = [...categoriesData];
+        categoryIdArray = [...categoriesData];
     })
     .then(() => {
       return knex('objects')
