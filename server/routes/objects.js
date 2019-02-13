@@ -148,8 +148,10 @@ router.post('/', (req, res, next) => {
     .then(result => {
       if (result) {
         const hydrated = hydrateObjects(result)[0];
-        res.status(201).json(hydrated);
+        return res.status(201).json(hydrated);
+       
       }
+
     })
     .catch(err => next(err));
 });
