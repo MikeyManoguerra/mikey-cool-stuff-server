@@ -13,7 +13,7 @@ module.exports = {
   },
   test: {
     client: 'pg',
-    connection: process.env.TEST_DATABASE_URL || 'postgres://localhost/object-tracker-test',
+    connection: process.env.TEST_DATABASE_URL || 'postgres://localhost/object_tracker_test',
     pool: { min: 1, max: 2 }
   }
 };
