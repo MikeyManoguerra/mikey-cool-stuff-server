@@ -26,8 +26,7 @@ router.get('/', (req, res, next) => {
     .leftJoin('manufacturers', 'objects.manufacturer_id', 'manufacturers.id')
     .leftJoin('objects_categories', 'objects.id', 'objects_categories.object_id')
     .leftJoin('categories', 'objects_categories.category_id', 'categories.id')
-
-    // .orderBy('objects.id')
+    .orderBy('objects.name')
     .then(result => {
       if (result) {
         const hydrated = hydrateObjects(result);

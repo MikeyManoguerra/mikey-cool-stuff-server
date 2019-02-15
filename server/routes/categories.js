@@ -7,6 +7,7 @@ router.get('/',(req, res, next) => {
   knex
     .select('categories.id', 'name')
     .from('categories')
+    .orderBy('name')
     .then(result => {
       if (result) {
         res.json(result);

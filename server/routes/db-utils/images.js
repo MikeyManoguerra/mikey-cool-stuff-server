@@ -14,7 +14,6 @@ const addImageUrlToDb = (obj) => {
       .returning('images.id')
       .then(([results]) => {
         if (results) {
-          console.log(results);
           return results;
         }
       });

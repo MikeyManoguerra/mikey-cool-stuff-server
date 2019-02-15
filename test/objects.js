@@ -33,4 +33,4 @@ describe('Noteful API', function () {
   });
 });
 
-console.log('keep the to db sql files in sync');
+// TODO ('keep the to db sql files in sync');
