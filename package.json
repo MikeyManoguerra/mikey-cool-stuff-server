@@ -10,7 +10,8 @@
   },
   "scripts": {
     "test": "cross-env NODE_ENV=test mocha",
-    "start": "node server/index.js"
+    "start": "node server/index.js",
+    "cover": "nyc --reporter=text-summary --reporter=lcov npm test"
   },
   "dependencies": {
     "cloudinary": "^1.13.2",
